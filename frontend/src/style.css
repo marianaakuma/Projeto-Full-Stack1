@@ -1,0 +1,37 @@
+.estado {
+  text-align: center;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin: 16px 0;
+  background: #fff;
+}
+
+.estado.carregando {
+  color: #555;
+}
+
+.estado.erro {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.estado.vazio {
+  color: #6b7280;
+  background: #f9fafb;
+}
+
+button {
+  background: #42b983;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #379f72;
+}
