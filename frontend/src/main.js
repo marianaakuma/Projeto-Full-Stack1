@@ -1,6 +1,13 @@
+// src/main.js
 import { createApp } from 'vue'
-import './style.css'
 import App from './App.vue'
-console.log(App)
 
-createApp(App).mount('#app')
+import { createPinia } from 'pinia'     // ← importar Pinia
+
+const app = createApp(App)
+
+const pinia = createPinia()            // ← criar instância
+app.use(pinia)                         // ← registrar no Vue
+
+app.mount('#app')
+

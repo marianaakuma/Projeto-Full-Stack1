@@ -1,16 +1,7 @@
 <!-- template atualizado do App.vue -->
 <template>
-  <div class="app">
-    <!-- Componente de Notificações -->
-    <Notification />
-    
-    <div class="container">
-      <h1 class="titulo">📚 Gerenciador de Recursos</h1>
-      <p class="subtitulo">Sistema completo de CRUD com recursos e sub-recursos</p>
-      
-      <!-- Componente de Lista de Recursos -->
-      <ResourceList />
-    </div>
+   <div class="container">
+    <RouterView />
   </div>
 </template>
 

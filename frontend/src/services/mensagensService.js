@@ -1,4 +1,5 @@
-import api from './api.js'
+// src/services/mensagensService.js
+import api from '@/services/api.js'
 
 /**
  * Lista todas as mensagens.
@@ -13,6 +14,26 @@ export async function getMensagens() {
       erro: 'NetworkError',
       message: 'Falha ao carregar mensagens.',
       status: 500
+    }
+  }
+}
+
+/**
+ * Busca uma única mensagem por ID.
+ * GET /mensagens/:id
+ */
+export async function getMensagem(id) {
+  try {
+    const resposta = await api.get(`/mensagens/${id}`)
+    return resposta.data
+  } catch (erro) {
+    // Repassa informação de erro da API quando disponível
+    const payload = erro.response?.data
+    if (payload) throw payload
+    throw {
+      erro: 'NetworkError',
+      message: 'Falha ao carregar a mensagem.',
+      status: erro.response?.status || 500
     }
   }
 }
