@@ -37,10 +37,10 @@
         @editar="onEditarMensagem"
         @remover="onRemoverMensagem"
       >
-        <template #titulo>{{ msg.titulo }}</template>
-        <template #conteudo>{{ msg.conteudo }}</template>
-        <template #autor>{{ msg.autor?.nome ?? '—' }}</template>
-        <template #data>{{ formatarData(msg.data_criacao) }}</template>
+        <template #titulo>{{ msg.title }}</template>
+        <template #conteudo>{{ msg.content }}</template>
+        <template #autor>{{ msg.author }}</template>
+        <template #data>{{ formatarData(msg.created_at) }}</template>
       </MensagemCard>
     </div>
   </div>
@@ -79,6 +79,7 @@ async function carregar() {
 
     mensagens.value = (Array.isArray(lista) ? lista : (lista.items ?? []))
       .map(m => ({ ...m, id: m.id ?? m._id ?? m.uuid }))
+      console.log(mensagens.value)
   } catch (e) {
     erro.value = e?.response?.data?.error || e?.message || 'Falha ao carregar mensagens.'
   } finally {

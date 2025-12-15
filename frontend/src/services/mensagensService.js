@@ -1,4 +1,3 @@
-// src/services/mensagensService.js
 import api from '@/services/api.js'
 
 /**
@@ -7,7 +6,7 @@ import api from '@/services/api.js'
  */
 export async function getMensagens() {
   try {
-    const resposta = await api.get('/mensagens')
+    const resposta = await api.get('/posts')
     return resposta.data
   } catch (erro) {
     throw erro.response?.data || {
@@ -19,32 +18,12 @@ export async function getMensagens() {
 }
 
 /**
- * Busca uma única mensagem por ID.
- * GET /mensagens/:id
- */
-export async function getMensagem(id) {
-  try {
-    const resposta = await api.get(`/mensagens/${id}`)
-    return resposta.data
-  } catch (erro) {
-    // Repassa informação de erro da API quando disponível
-    const payload = erro.response?.data
-    if (payload) throw payload
-    throw {
-      erro: 'NetworkError',
-      message: 'Falha ao carregar a mensagem.',
-      status: erro.response?.status || 500
-    }
-  }
-}
-
-/**
  * Cria uma nova mensagem.
  * POST /mensagens
  */
 export async function criarMensagem(dados) {
   try {
-    const resposta = await api.post('/mensagens', dados)
+    const resposta = await api.post('/posts/', dados)
     return resposta.data
   } catch (erro) {
     throw erro.response?.data || {
@@ -61,7 +40,7 @@ export async function criarMensagem(dados) {
  */
 export async function atualizarMensagem(id, dados) {
   try {
-    const resposta = await api.put(`/mensagens/${id}`, dados)
+    const resposta = await api.put(`/posts/${id}`, dados)
     return resposta.data
   } catch (erro) {
     throw erro.response?.data || {
@@ -78,7 +57,7 @@ export async function atualizarMensagem(id, dados) {
  */
 export async function removerMensagem(id) {
   try {
-    const resposta = await api.delete(`/mensagens/${id}`)
+    const resposta = await api.delete(`/posts/${id}`)
     return resposta.data
   } catch (erro) {
     throw erro.response?.data || {

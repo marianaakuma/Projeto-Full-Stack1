@@ -7,7 +7,7 @@
 
       <div class="grupo">
         <label for="email">Email</label>
-        <input id="email"
+        <inputid="email"
           type="email"
           v-model.trim="email"
           required
@@ -17,7 +17,7 @@
 
       <div class="grupo">
         <label for="senha">Senha</label>
-        <input id="senha"
+        <inputid="senha"
           type="password"
           v-model.trim="senha"
           required

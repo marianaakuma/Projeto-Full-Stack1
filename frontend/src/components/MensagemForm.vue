@@ -1,68 +1,70 @@
 <!-- src/components/MensagemForm.vue -->
+<!-- src/components/MensagemForm.vue -->
 <template>
   <form class="form" @submit.prevent="enviarMensagem">
     <div class="grupo">
       <label for="titulo">Título</label>
-      <input id="titulo" v-model.trim="titulo" type="text" required placeholder="Digite o título" />
+      <input id="titulo"
+        v-model.trim="titulo"
+        type="text"
+        placeholder="Digite o título da mensagem"
+        required
+      />
     </div>
 
     <div class="grupo">
       <label for="conteudo">Conteúdo</label>
-      <textarea id="conteudo" v-model.trim="conteudo" rows="5" required placeholder="Escreva a mensagem"></textarea>
+      <textarea id="conteudo"
+        v-model.trim="conteudo"
+        rows="3"
+        placeholder="Escreva o conteúdo da mensagem"
+        required
+      ></textarea>
     </div>
 
-    <div class="acoes-form">
-      <button class="enviar" type="submit">
-        {{ modelo ? "Salvar Alterações" : "Adicionar Mensagem" }}
-      </button>
-
-      <button v-if="modelo" type="button" class="cancelar" @click="onCancelar">
-        Cancelar
-      </button>
+    <div class="grupo">
+      <label for="autor">Autor</label>
+      <input id="autor"
+        v-model.trim="autor"
+        type="text"
+        placeholder="Seu nome (opcional)"
+      />
     </div>
+
+    <button class="enviar" type="submit">Adicionar</button>
   </form>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
-const props = defineProps({
-  modelo: { type: Object, default: null }
-})
+// evento emitido para o componente pai
+const emit = defineEmits(['adicionar'])
 
-const emit = defineEmits(['adicionar', 'salvar', 'cancelar'])
-
+// campos reativos do formulário
 const titulo = ref('')
 const conteudo = ref('')
+const autor = ref('')
 
-watch(
-  () => props.modelo,
-  (m) => {
-    titulo.value = m?.titulo ?? ''
-    conteudo.value = m?.conteudo ?? ''
-  },
-  { immediate: true }
-)
-
+// função de envio do formulário
 function enviarMensagem() {
   if (!titulo.value || !conteudo.value) return
 
-  const payload = {
+  emit('adicionar', {
     titulo: titulo.value,
-    conteudo: conteudo.value
-    // NÃO inclui id — id vem da rota na view
-  }
+    conteudo: conteudo.value,
+    autor: autor.value || 'Anônimo',
+    data_criacao: new Date().toISOString()
+  })
 
-  if (props.modelo) emit('salvar', payload)
-  else {
-    emit('adicionar', payload)
-    titulo.value = ''
-    conteudo.value = ''
-  }
+  // limpa os campos após o envio
+  titulo.value = ''
+  conteudo.value = ''
+  autor.value = ''
 }
-
-function onCancelar() { emit('cancelar') }
 </script>
+
+
 
 <style scoped>
 .form { display:flex; flex-direction:column; gap:12px; margin:12px 0; }

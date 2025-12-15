@@ -9,6 +9,7 @@ import os
 from src.routes.auth import auth
 from src.routes.posts import posts
 from src.routes.comments import comments
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
@@ -20,6 +21,7 @@ def create_app():
     db.init_app(app)
     migrate = Migrate(app, db)
     JWTManager(app)
+    CORS(app)
 
     app.register_blueprint(auth)
     app.register_blueprint(posts)
