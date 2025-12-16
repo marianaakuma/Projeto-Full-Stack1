@@ -28,7 +28,7 @@ def create_app():
     # supports_credentials permite envio de cookies/credenciais
     # automatic_options=True garante que OPTIONS seja tratado automaticamente
     CORS(app, 
-         origins=["http://localhost:5173", "http://localhost:3000"],
+         origins=["https://cuddly-engine-wr5p647g9p5c9pr-5173.app.github.dev", "http://localhost:3000"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
          allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
          supports_credentials=True,
