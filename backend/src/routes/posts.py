@@ -5,7 +5,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 posts = Blueprint('posts', __name__, url_prefix='/posts')
 
-@posts.route('/', methods=['GET'])
+@posts.route('/', methods=['GET', 'OPTIONS'])
+@posts.route('', methods=['GET', 'OPTIONS'], strict_slashes=False)
 def get_posts():
     posts = Post.query.all()
     return jsonify([post.to_dict() for post in posts]), 200
@@ -14,6 +15,9 @@ def get_posts():
 @jwt_required()
 def create_post():
     data = request.json
+    if not data or 'title' not in data or 'content' not in data:
+        return jsonify({'error': 'Title and content are required'}), 400
+    
     user_id = int(get_jwt_identity())
     jwt_data = get_jwt()
     new_post = Post(title=data['title'], content=data['content'], author=jwt_data['username'], user_id=user_id)

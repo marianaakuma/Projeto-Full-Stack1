@@ -21,19 +21,6 @@
           <span v-if="errors.conteudo" class="error-message">{{ errors.conteudo }}</span>
         </div>
 
-        <!-- Campo de Autor -->
-        <div class="form-group">
-          <label for="autor">Autor *</label>
-          <input
-            type="text"
-            id="autor"
-            v-model="formData.autor"
-            required
-            placeholder="Seu nome"
-            :class="{ 'error': errors.autor }"
-          />
-          <span v-if="errors.autor" class="error-message">{{ errors.autor }}</span>
-        </div>
 
         <!-- Mensagem de Erro Geral -->
         <div v-if="errors.general" class="error-message general-error">
@@ -84,14 +71,11 @@ const emit = defineEmits(['save', 'cancel'])
 // Estado
 const saving = ref(false)
 const formData = reactive({
-  conteudo: '',
-  autor: '',
-  data: new Date().toISOString()
+  conteudo: ''
 })
 
 const errors = reactive({
   conteudo: '',
-  autor: '',
   general: ''
 })
 
@@ -100,9 +84,7 @@ const isEdit = computed(() => !!props.model)
 
 // Inicializar formulário com dados do modelo se for edição
 if (isEdit.value) {
-  formData.conteudo = props.model.conteudo
-  formData.autor = props.model.autor
-  formData.data = props.model.data
+  formData.conteudo = props.model.content || props.model.conteudo || ''
 }
 
 // Funções de Validação
@@ -111,7 +93,6 @@ function validateForm() {
   
   // Limpar erros anteriores
   errors.conteudo = ''
-  errors.autor = ''
   errors.general = ''
   
   // Validar conteúdo
@@ -120,15 +101,6 @@ function validateForm() {
     isValid = false
   } else if (formData.conteudo.trim().length < 3) {
     errors.conteudo = 'O comentário deve ter pelo menos 3 caracteres.'
-    isValid = false
-  }
-  
-  // Validar autor
-  if (!formData.autor.trim()) {
-    errors.autor = 'O autor é obrigatório.'
-    isValid = false
-  } else if (formData.autor.trim().length < 2) {
-    errors.autor = 'O nome do autor deve ter pelo menos 2 caracteres.'
     isValid = false
   }
   
@@ -149,19 +121,15 @@ async function handleSubmit() {
     
     if (isEdit.value) {
       // Atualizar sub-recurso existente
-      const updatedData = {
-        ...formData,
-        id: props.model.id,
-        resourceId: props.resourceId
-      }
-      result = await updateSubResource(props.model.id, updatedData)
+      result = await updateSubResource(props.resourceId, props.model.id, {
+        content: formData.conteudo
+      })
     } else {
       // Criar novo sub-recurso
-      const newData = {
-        ...formData,
-        resourceId: props.resourceId
-      }
-      result = await createSubResource(newData)
+      result = await createSubResource({
+        postId: props.resourceId,
+        content: formData.conteudo
+      })
     }
     
     // Emitir evento de sucesso

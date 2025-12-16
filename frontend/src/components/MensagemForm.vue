@@ -31,36 +31,73 @@
       />
     </div>
 
-    <button class="enviar" type="submit">Adicionar</button>
+    <div class="acoes-form">
+      <button class="enviar" type="submit">{{ modelo ? 'Salvar' : 'Adicionar' }}</button>
+      <button v-if="modelo" class="cancelar" type="button" @click="$emit('cancelar')">Cancelar</button>
+    </div>
   </form>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+
+// Props
+const props = defineProps({
+  modelo: {
+    type: Object,
+    default: null
+  }
+})
 
 // evento emitido para o componente pai
-const emit = defineEmits(['adicionar'])
+const emit = defineEmits(['adicionar', 'salvar', 'cancelar'])
 
 // campos reativos do formulário
 const titulo = ref('')
 const conteudo = ref('')
 const autor = ref('')
 
+// Preencher formulário se houver modelo (modo edição)
+watch(() => props.modelo, (novoModelo) => {
+  if (novoModelo) {
+    titulo.value = novoModelo.title || novoModelo.titulo || ''
+    conteudo.value = novoModelo.content || novoModelo.conteudo || ''
+    autor.value = novoModelo.author || novoModelo.autor || ''
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  if (props.modelo) {
+    titulo.value = props.modelo.title || props.modelo.titulo || ''
+    conteudo.value = props.modelo.content || props.modelo.conteudo || ''
+    autor.value = props.modelo.author || props.modelo.autor || ''
+  }
+})
+
 // função de envio do formulário
 function enviarMensagem() {
   if (!titulo.value || !conteudo.value) return
 
-  emit('adicionar', {
+  const dados = {
     titulo: titulo.value,
     conteudo: conteudo.value,
     autor: autor.value || 'Anônimo',
     data_criacao: new Date().toISOString()
-  })
+  }
 
-  // limpa os campos após o envio
-  titulo.value = ''
-  conteudo.value = ''
-  autor.value = ''
+  // Se há modelo, está editando, senão está criando
+  if (props.modelo) {
+    emit('salvar', dados)
+  } else {
+    emit('adicionar', dados)
+  }
+
+  // limpa os campos após o envio (apenas se não for edição)
+  if (!props.modelo) {
+    titulo.value = ''
+    conteudo.value = ''
+    autor.value = ''
+  }
 }
 </script>
 

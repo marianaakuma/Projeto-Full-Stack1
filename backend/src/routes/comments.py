@@ -9,10 +9,9 @@ comments = Blueprint('comments', __name__, url_prefix='/comments')
 @comments.route('/<int:post_id>', methods=['GET'])
 @jwt_required()
 def get_comments(post_id):
+    # Verificar se o post existe
     post = Post.query.get_or_404(post_id)
-    user_id = int(get_jwt_identity())
-    if user_id != post.user_id:
-        return jsonify({'message': 'Unauthorized'}), 401
+    # Qualquer usuário autenticado pode ver comentários de qualquer post
     comments = Comments.query.filter_by(post_id=post_id).all()
     return jsonify([comment.to_dict() for comment in comments]), 200
 
@@ -20,11 +19,13 @@ def get_comments(post_id):
 @comments.route('/<int:post_id>', methods=['POST'])
 @jwt_required()
 def create_comment(post_id):
+    # Verificar se o post existe
     post = Post.query.get_or_404(post_id)
+    # Qualquer usuário autenticado pode comentar em qualquer post
     user_id = int(get_jwt_identity())
-    if user_id != post.user_id:
-        return jsonify({'message': 'Unauthorized'}), 401
     data = request.json
+    if not data or 'content' not in data:
+        return jsonify({'error': 'Content is required'}), 400
     new_comment = Comments(content=data['content'], user_id=user_id, post_id=post_id)
     db.session.add(new_comment)
     db.session.commit()

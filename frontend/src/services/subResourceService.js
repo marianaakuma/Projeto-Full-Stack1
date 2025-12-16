@@ -1,85 +1,86 @@
 import api from './api.js'
 
 /**
- * Lista todos os sub-recursos de um recurso específico
- * GET /subresources?resourceId=:resourceId
+ * Lista todos os comentários de um post específico
+ * GET /comments/:post_id
  */
-export async function getSubResources(resourceId) {
+export async function getSubResources(postId) {
   try {
-    const resposta = await api.get(`/subresources?resourceId=${resourceId}`)
-    return resposta.data
+    const resposta = await api.get(`/comments/${postId}`)
+    return resposta.data || []
   } catch (erro) {
     throw erro.response?.data || {
       erro: 'NetworkError',
-      message: 'Falha ao carregar sub-recursos.',
+      message: 'Falha ao carregar comentários.',
       status: 500
     }
   }
 }
 
 /**
- * Busca um sub-recurso por ID
- * GET /subresources/:id
+ * Busca um comentário por ID (não usado diretamente, mas mantido para compatibilidade)
+ * GET /comments/:post_id/:comment_id
  */
-export async function getSubResourceById(id) {
+export async function getSubResourceById(postId, commentId) {
   try {
-    const resposta = await api.get(`/subresources/${id}`)
+    const resposta = await api.get(`/comments/${postId}/${commentId}`)
     return resposta.data
   } catch (erro) {
     throw erro.response?.data || {
       erro: 'NetworkError',
-      message: 'Falha ao carregar sub-recurso.',
+      message: 'Falha ao carregar comentário.',
       status: 500
     }
   }
 }
 
 /**
- * Cria um novo sub-recurso
- * POST /subresources
+ * Cria um novo comentário
+ * POST /comments/:post_id
  */
 export async function createSubResource(dados) {
   try {
-    const resposta = await api.post('/subresources', dados)
-    return resposta.data
+    const { postId, content } = dados
+    const resposta = await api.post(`/comments/${postId}`, { content })
+    return resposta.data.comment || resposta.data
   } catch (erro) {
     throw erro.response?.data || {
       erro: 'NetworkError',
-      message: 'Falha ao criar sub-recurso.',
+      message: 'Falha ao criar comentário.',
       status: 500
     }
   }
 }
 
 /**
- * Atualiza um sub-recurso existente
- * PUT /subresources/:id
+ * Atualiza um comentário existente
+ * PUT /comments/:post_id/:comment_id
  */
-export async function updateSubResource(id, dados) {
+export async function updateSubResource(postId, commentId, dados) {
   try {
-    const resposta = await api.put(`/subresources/${id}`, dados)
-    return resposta.data
+    const resposta = await api.put(`/comments/${postId}/${commentId}`, { content: dados.content })
+    return resposta.data.comment || resposta.data
   } catch (erro) {
     throw erro.response?.data || {
       erro: 'NetworkError',
-      message: 'Falha ao atualizar sub-recurso.',
+      message: 'Falha ao atualizar comentário.',
       status: 500
     }
   }
 }
 
 /**
- * Remove um sub-recurso
- * DELETE /subresources/:id
+ * Remove um comentário
+ * DELETE /comments/:post_id/:comment_id
  */
-export async function deleteSubResource(id) {
+export async function deleteSubResource(postId, commentId) {
   try {
-    const resposta = await api.delete(`/subresources/${id}`)
+    const resposta = await api.delete(`/comments/${postId}/${commentId}`)
     return resposta.data
   } catch (erro) {
     throw erro.response?.data || {
       erro: 'NetworkError',
-      message: 'Falha ao remover sub-recurso.',
+      message: 'Falha ao remover comentário.',
       status: 500
     }
   }

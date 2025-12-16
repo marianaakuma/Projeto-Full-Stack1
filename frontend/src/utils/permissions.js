@@ -47,24 +47,46 @@ function _normRole(role) {
   
   /**
    * Pode o usuário editar a mensagem?
-   * Política atual: owner OR admin.
+   * Política atual: apenas owner (sem admin).
    * @param {Object|null} user
    * @param {Object|null} mensagem
    * @returns {boolean}
    */
   export function canEditMessage(user, mensagem) {
-    return isOwner(user, mensagem) || isAdmin(user)
+    return isOwner(user, mensagem)
   }
   
   /**
    * Pode o usuário deletar a mensagem?
-   * Política atual: owner OR admin.
+   * Política atual: apenas owner (sem admin).
    * @param {Object|null} user
    * @param {Object|null} mensagem
    * @returns {boolean}
    */
   export function canDeleteMessage(user, mensagem) {
-    return isOwner(user, mensagem) || isAdmin(user)
+    return isOwner(user, mensagem)
+  }
+
+  /**
+   * Pode o usuário editar o comentário?
+   * Política: apenas owner.
+   * @param {Object|null} user
+   * @param {Object|null} comentario
+   * @returns {boolean}
+   */
+  export function canEditComment(user, comentario) {
+    return isOwner(user, comentario)
+  }
+
+  /**
+   * Pode o usuário deletar o comentário?
+   * Política: apenas owner.
+   * @param {Object|null} user
+   * @param {Object|null} comentario
+   * @returns {boolean}
+   */
+  export function canDeleteComment(user, comentario) {
+    return isOwner(user, comentario)
   }
   
   

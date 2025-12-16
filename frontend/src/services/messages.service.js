@@ -1,21 +1,21 @@
 import api from '@/services/api'
 
 export function getMessages() {
-  return api.get('/mensagens')
+  return api.get('/posts/')
 }
 
 export function deleteMessage(id) {
-  return api.delete(`/mensagens/${id}`)
+  return api.delete(`/posts/${id}`)
 }
 
 export function getMessage(id) {
-  return api.get(`/mensagens/${id}`)
+  return api.get(`/posts/${id}`)
 }
 
 export function updateMessage(id, payload) {
-  return api.put(`/mensagens/${id}`, payload)
+  return api.put(`/posts/${id}`, payload)
 }
 
 export function createMessage(payload) {
-  return api.post('/mensagens', payload)
+  return api.post('/posts/', payload)
 }

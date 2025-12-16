@@ -2,7 +2,11 @@
   <div class="subresource-list">
     <div class="subresource-header">
       <h4>Comentários</h4>
-      <button class="btn-add" @click="openCreateModal">
+      <button 
+        v-if="auth.isAuthenticated"
+        class="btn-add" 
+        @click="openCreateModal"
+      >
         ➕ Adicionar Comentário
       </button>
     </div>
@@ -29,18 +33,27 @@
         class="subresource-item"
       >
         <div class="subresource-content">
-          <p>{{ subResource.conteudo }}</p>
+          <p>{{ subResource.content || subResource.conteudo }}</p>
           <div class="subresource-meta">
-            <small>👤 {{ subResource.autor }}</small>
-            <small>📅 {{ formatDate(subResource.data) }}</small>
+            <small>📅 {{ formatDate(subResource.created_at || subResource.data) }}</small>
           </div>
         </div>
         
-        <div class="subresource-actions">
-          <button class="btn-edit-small" @click="editSubResource(subResource)">
+        <div class="subresource-actions" v-if="canEditCommentLocal(subResource) || canDeleteCommentLocal(subResource)">
+          <button 
+            v-if="canEditCommentLocal(subResource)"
+            class="btn-edit-small" 
+            @click="editSubResource(subResource)"
+            title="Editar comentário"
+          >
             ✏️
           </button>
-          <button class="btn-delete-small" @click="confirmDelete(subResource)">
+          <button 
+            v-if="canDeleteCommentLocal(subResource)"
+            class="btn-delete-small" 
+            @click="confirmDelete(subResource)"
+            title="Excluir comentário"
+          >
             🗑️
           </button>
         </div>
@@ -59,9 +72,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { canEditComment, canDeleteComment } from '@/utils/permissions'
 import { getSubResources, deleteSubResource } from '../services/subResourceService.js'
 import SubResourceForm from './SubResourceForm.vue'
+
+const auth = useAuthStore()
 
 // Props e Emits
 const props = defineProps({
@@ -127,33 +144,60 @@ function confirmDelete(subResource) {
 // Excluir sub-recurso
 async function deleteSubResourceConfirmed(subResource) {
   try {
-    await deleteSubResource(subResource.id)
+    await deleteSubResource(props.resourceId, subResource.id)
     
     // Remover da lista local
     const index = subResources.value.findIndex(sr => sr.id === subResource.id)
     if (index !== -1) {
       subResources.value.splice(index, 1)
     }
+    
+    // Mensagem UX: Sucesso ao deletar
+    if (window.$notify) {
+      window.$notify.success('Comentário removido com sucesso!')
+    }
   } catch (e) {
     error.value = e.message || 'Erro ao excluir comentário.'
     emit('error', error.value)
+    // Mensagem UX: Erro ao deletar
+    if (window.$notify) {
+      window.$notify.error('Erro ao remover comentário.')
+    }
   }
 }
 
 // Salvar sub-recurso (criar ou atualizar)
 async function handleSave(savedSubResource) {
-  if (editingSubResource.value) {
-    // Atualizar na lista
-    const index = subResources.value.findIndex(sr => sr.id === savedSubResource.id)
-    if (index !== -1) {
-      subResources.value[index] = savedSubResource
+  try {
+    if (editingSubResource.value) {
+      // Atualizar na lista
+      const index = subResources.value.findIndex(sr => sr.id === savedSubResource.id)
+      if (index !== -1) {
+        subResources.value[index] = savedSubResource
+      }
+      // Mensagem UX: Sucesso ao atualizar
+      if (window.$notify) {
+        window.$notify.success('Comentário atualizado com sucesso!')
+      }
+    } else {
+      // Adicionar à lista
+      subResources.value.push(savedSubResource)
+      // Mensagem UX: Sucesso ao criar
+      if (window.$notify) {
+        window.$notify.success('Comentário criado com sucesso!')
+      }
     }
-  } else {
-    // Adicionar à lista
-    subResources.value.push(savedSubResource)
+    
+    closeForm()
+    // Recarregar lista para garantir sincronização
+    await loadSubResources()
+  } catch (e) {
+    error.value = e.message || 'Erro ao salvar comentário.'
+    // Mensagem UX: Erro ao salvar
+    if (window.$notify) {
+      window.$notify.error('Erro ao salvar comentário.')
+    }
   }
-  
-  closeForm()
 }
 
 // Fechar formulário
@@ -166,6 +210,10 @@ function closeForm() {
 watch(() => props.resourceId, () => {
   loadSubResources()
 })
+
+// Funções de permissão (wrappers locais)
+const canEditCommentLocal = (comentario) => canEditComment(auth.user, comentario)
+const canDeleteCommentLocal = (comentario) => canDeleteComment(auth.user, comentario)
 
 // Lifecycle
 onMounted(() => {

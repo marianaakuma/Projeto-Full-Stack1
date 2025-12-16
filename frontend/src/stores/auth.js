@@ -41,21 +41,42 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /* ---------------------------------------------------------
+       REGISTER
+    --------------------------------------------------------- */
+    async register(username, email, password) {
+      // 1. criar conta e obter token
+      const resp = await api.post('/auth/register', { username, email, password })
+
+      // 2. armazenar token (backend retorna 'token' não 'access_token')
+      const token = resp.data.token || resp.data.access_token
+      this.setAccessToken(token)
+
+      // 3. armazenar dados do usuário (backend já retorna user na resposta)
+      if (resp.data.user) {
+        this.setUser(resp.data.user)
+      }
+    },
+
+    /* ---------------------------------------------------------
        LOGIN
     --------------------------------------------------------- */
     async login(email, senha) {
-      // 1. solicitar tokens
-      const resp = await api.post('/auth/login', { email, senha })
+      // 1. solicitar tokens (backend espera 'password' não 'senha')
+      const resp = await api.post('/auth/login', { email, password: senha })
 
-      // 2. armazenar tokens
-      this.setAccessToken(resp.data.access_token)
-      this.saveRefreshToken(resp.data.refresh_token)
+      // 2. armazenar tokens (backend retorna 'token' não 'access_token')
+      const token = resp.data.token || resp.data.access_token
+      this.setAccessToken(token)
+      
+      // Backend pode não retornar refresh_token, então só salva se existir
+      if (resp.data.refresh_token) {
+        this.saveRefreshToken(resp.data.refresh_token)
+      }
 
-      // 3. solicitar perfil do usuário
-      const me = await api.get('/auth/me', {
-        headers: { Authorization: `Bearer ${this.accessToken}` }
-      })
-      this.setUser(me.data)
+      // 3. armazenar dados do usuário (backend já retorna user na resposta)
+      if (resp.data.user) {
+        this.setUser(resp.data.user)
+      }
     },
 
     /* ---------------------------------------------------------

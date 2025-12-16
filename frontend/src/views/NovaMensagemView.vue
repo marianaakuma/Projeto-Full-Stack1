@@ -26,10 +26,22 @@ const auth = useAuthStore()
 
 async function salvar(payload) {
   try {
-    await createMessage(payload)
+    // Converter campos do português para inglês (backend espera title e content)
+    const dadosParaBackend = {
+      title: payload.titulo || payload.title,
+      content: payload.conteudo || payload.content
+    }
+    await createMessage(dadosParaBackend)
+    // Mensagem UX: Sucesso ao criar
+    if (window.$notify) {
+      window.$notify.success('Mensagem criada com sucesso!')
+    }
     router.push('/mensagens')
   } catch (e) {
-    alert(e?.response?.data?.error || e?.message || 'Erro ao criar mensagem.')
+    // Mensagem UX: Erro ao criar
+    if (window.$notify) {
+      window.$notify.error(e?.response?.data?.error || e?.message || 'Erro ao criar mensagem.')
+    }
   }
 }
 </script>

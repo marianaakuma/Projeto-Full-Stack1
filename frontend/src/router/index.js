@@ -7,6 +7,7 @@ import MainLayout from '@/layouts/MainLayout.vue'
 
 // Views públicas
 import LoginView from '@/views/LoginView.vue'
+import RegisterView from '@/views/RegisterView.vue'
 
 // Views internas
 import MensagensView from '@/views/MensagensView.vue'
@@ -20,8 +21,9 @@ import AdminDashboard from '@/views/AdminDashboard.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 
 const routes = [
-  // Rota pública: login
+  // Rotas públicas: login e registro
   { path: '/login', name: 'login', component: LoginView },
+  { path: '/register', name: 'register', component: RegisterView },
 
   // Área autenticada: usa MainLayout como wrapper
   {
@@ -84,9 +86,9 @@ router.beforeEach(async (to, from) => {
   const requiresAuth = to.matched.some(record => record.meta?.requiresAuth)
   const roles = to.meta?.roles || null
 
-  // 1) rota pública: permitir (com exceção: evitar mostrar /login para usuário já autenticado)
+  // 1) rota pública: permitir (com exceção: evitar mostrar /login ou /register para usuário já autenticado)
   if (!requiresAuth) {
-    if (to.name === 'login' && auth.accessToken) {
+    if ((to.name === 'login' || to.name === 'register') && auth.accessToken) {
       return { name: 'mensagens' }
     }
     return true
@@ -119,41 +121,4 @@ router.beforeEach(async (to, from) => {
 })
 
 export default router
-
-
-router.beforeEach(async (to, from) => {
-    const auth = useAuthStore()
-  
-    const requiresAuth = to.matched.some(record => record.meta?.requiresAuth)
-    const roles = to.meta?.roles || null
-  
-    if (!requiresAuth) {
-      if (to.name === 'login' && auth.accessToken) {
-        return { name: 'mensagens' }
-      }
-      return true
-    }
-  
-    if (auth.accessToken) {
-      if (roles && (!auth.user || !roles.includes(auth.user.role))) {
-        return { name: 'not-found' }
-      }
-      return true
-    }
-  
-    const refreshed = await auth.refreshAccessToken()
-  
-    if (refreshed) {
-      if (roles && (!auth.user || !roles.includes(auth.user.role))) {
-        return { name: 'not-found' }
-      }
-      return true
-    }
-  
-    return {
-      name: 'login',
-      query: { redirect: to.fullPath }
-    }
-  })
-  
   

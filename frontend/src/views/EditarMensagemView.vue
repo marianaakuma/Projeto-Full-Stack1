@@ -59,9 +59,9 @@ async function carregar() {
       id: data.id ?? data._id ?? data.uuid
     }
 
-    // verificação defensiva
-    if (!(isOwner(auth.user, mensagem.value) || isAdmin(auth.user))) {
-      erro.value = 'Você não tem permissão para editar esta mensagem.'
+    // verificação defensiva - apenas o dono pode editar
+    if (!isOwner(auth.user, mensagem.value)) {
+      erro.value = 'Você não tem permissão para editar esta mensagem. Apenas o dono pode editar.'
       mensagem.value = null
     }
 
@@ -74,11 +74,22 @@ async function carregar() {
 
 async function atualizar(payload) {
   try {
-    await updateMessage(id, payload) // ID vem da rota, NÃO do payload
-    alert('Mensagem atualizada com sucesso!')
+    // Converter campos do português para inglês (backend espera title e content)
+    const dadosParaBackend = {
+      title: payload.titulo || payload.title,
+      content: payload.conteudo || payload.content
+    }
+    await updateMessage(id, dadosParaBackend) // ID vem da rota, NÃO do payload
+    // Mensagem UX: Sucesso ao atualizar
+    if (window.$notify) {
+      window.$notify.success('Mensagem atualizada com sucesso!')
+    }
     router.push('/mensagens')
   } catch (e) {
-    alert(e?.response?.data?.error || e?.message || 'Erro ao atualizar mensagem.')
+    // Mensagem UX: Erro ao atualizar
+    if (window.$notify) {
+      window.$notify.error(e?.response?.data?.error || e?.message || 'Erro ao atualizar mensagem.')
+    }
   }
 }
 

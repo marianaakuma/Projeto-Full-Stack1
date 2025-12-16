@@ -1,33 +1,40 @@
-# 🚀 Gerenciador de Recursos - Vue.js Frontend
+# 🚀 Sistema de Mensagens - Vue.js Frontend
 
-Sistema completo de CRUD desenvolvido em Vue.js com integração a API REST simulada via json-server.
+Sistema completo de CRUD desenvolvido em Vue.js com integração a API REST Flask.
 
 ## 📋 Funcionalidades
 
-### ✅ CRUD de Recursos Principais
-- **Criar**: Adicionar novos recursos com título, conteúdo, autor e status
-- **Ler**: Listar todos os recursos com filtros avançados
-- **Atualizar**: Editar recursos existentes
-- **Deletar**: Remover recursos (com confirmação)
+### ✅ CRUD de Recursos Principais (Posts/Mensagens)
+- **Criar**: Adicionar novas mensagens com título e conteúdo
+- **Ler**: Listar todas as mensagens com filtros avançados
+- **Atualizar**: Editar mensagens existentes
+- **Deletar**: Remover mensagens (com confirmação)
 
 ### ✅ CRUD de Sub-recursos (Comentários)
-- **Criar**: Adicionar comentários aos recursos
-- **Ler**: Visualizar comentários por recurso
+- **Criar**: Adicionar comentários aos posts
+- **Ler**: Visualizar comentários por post
 - **Atualizar**: Editar comentários existentes
 - **Deletar**: Remover comentários
 
-### ✅ Filtros Avançados
-- **Pesquisa por texto**: Buscar em títulos e conteúdos
-- **Filtro por status**: Ativo, Pendente, Resolvido
-- **Filtro por autor**: Buscar por nome do autor
-- **Filtro por data**: Intervalo de datas (início e fim)
-- **Limpar filtros**: Botão para resetar todos os filtros
+### ✅ Filtros Avançados (5 filtros implementados)
+1. **Pesquisa por texto**: Buscar em títulos e conteúdos
+2. **Filtro por autor**: Buscar por nome do autor
+3. **Filtro por data inicial**: Filtrar mensagens a partir de uma data
+4. **Filtro por data final**: Filtrar mensagens até uma data
+5. **Ordenação**: Ordenar por mais recente, mais antigo, título (A-Z, Z-A) ou autor (A-Z)
 
-### ✅ Sistema de Notificações
-- **Sucesso**: ✅ Operações realizadas com sucesso
-- **Erro**: ❌ Falhas nas operações
-- **Avisos**: ⚠️ Alertas importantes
-- **Informações**: ℹ️ Mensagens informativas
+### ✅ Sistema de Notificações UX (5 mensagens implementadas)
+1. **Sucesso ao carregar**: Notificação quando mensagens são carregadas com sucesso
+2. **Sucesso ao criar**: Notificação ao criar nova mensagem
+3. **Sucesso ao atualizar**: Notificação ao editar mensagem
+4. **Sucesso ao remover**: Notificação ao deletar mensagem
+5. **Erro**: Notificações de erro em todas as operações
+
+### ✅ Autenticação JWT
+- Login com email e senha
+- Token armazenado e enviado automaticamente pelo Axios
+- Rotas protegidas com guards
+- Refresh token para manter sessão ativa
 
 ### ✅ Interface Responsiva
 - Design moderno e intuitivo
@@ -39,8 +46,10 @@ Sistema completo de CRUD desenvolvido em Vue.js com integração a API REST simu
 
 - **Vue.js 3**: Framework JavaScript progressivo
 - **Vite**: Build tool rápido e moderno
+- **Vue Router**: Roteamento SPA
+- **Pinia**: Gerenciamento de estado
 - **Axios**: Cliente HTTP para requisições
-- **json-server**: API REST simulada
+- **Flask (Backend)**: API REST com autenticação JWT
 - **CSS3**: Estilização moderna com animações
 
 ## 📦 Instalação e Configuração
@@ -48,111 +57,158 @@ Sistema completo de CRUD desenvolvido em Vue.js com integração a API REST simu
 ### Pré-requisitos
 - Node.js (versão 16 ou superior)
 - npm ou yarn
+- Python 3.8+ (para o backend)
 
 ### 1. Clonar o Projeto
 ```bash
 git clone <url-do-repositorio>
-cd hello-vue
+cd Projeto-Full-Stack1
 ```
 
-### 2. Instalar Dependências
+### 2. Instalar Dependências do Frontend
 ```bash
+cd frontend
 npm install
 ```
 
 ### 3. Configurar Variáveis de Ambiente
 O arquivo `.env` já está configurado com:
 ```
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:5000/
 ```
+
+**Nota**: Certifique-se de que a URL do backend está correta. O backend Flask roda na porta 5000 por padrão.
 
 ## 🚀 Execução
 
-### Backend (json-server)
+### Backend (Flask)
 Em um terminal separado, navegue até a pasta backend:
 ```bash
 cd backend
-npm install
-npm run dev
+python -m venv venv
+source venv/bin/activate  # No Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python run.py
 ```
-O servidor json-server iniciará em `http://localhost:3000`
+O servidor Flask iniciará em `http://localhost:5000`
 
 ### Frontend (Vue.js)
-Em outro terminal, na pasta hello-vue:
+Em outro terminal, na pasta frontend:
 ```bash
+cd frontend
 npm run dev
 ```
 O aplicativo Vue.js iniciará em `http://localhost:5173`
 
 ## 📡 Endpoints da API
 
-### Recursos Principais (`/resources`)
-- `GET /resources` - Listar todos os recursos
-- `GET /resources/:id` - Obter recurso específico
-- `POST /resources` - Criar novo recurso
-- `PUT /resources/:id` - Atualizar recurso
-- `DELETE /resources/:id` - Remover recurso
+### Autenticação (`/auth`)
+- `POST /auth/login` - Fazer login
+- `POST /auth/refresh` - Renovar token de acesso
+- `POST /auth/logout` - Fazer logout
+- `GET /auth/me` - Obter dados do usuário autenticado
 
-### Sub-recursos (`/subresources`)
-- `GET /subresources?resourceId=:id` - Listar comentários de um recurso
-- `GET /subresources/:id` - Obter comentário específico
-- `POST /subresources` - Criar novo comentário
-- `PUT /subresources/:id` - Atualizar comentário
-- `DELETE /subresources/:id` - Remover comentário
+### Posts/Mensagens (`/posts`)
+- `GET /posts` - Listar todos os posts (público)
+- `GET /posts/:id` - Obter post específico (requer autenticação)
+- `POST /posts` - Criar novo post (requer autenticação)
+- `PUT /posts/:id` - Atualizar post (requer autenticação, apenas dono)
+- `DELETE /posts/:id` - Remover post (requer autenticação, apenas dono)
+
+### Comentários (`/comments`)
+- `GET /comments/:post_id` - Listar comentários de um post (requer autenticação)
+- `POST /comments/:post_id` - Criar novo comentário (requer autenticação)
+- `PUT /comments/:post_id/:comment_id` - Atualizar comentário (requer autenticação, apenas dono)
+- `DELETE /comments/:post_id/:comment_id` - Remover comentário (requer autenticação, apenas dono)
 
 ## 🎯 Estrutura do Projeto
 
 ```
-hello-vue/
+frontend/
 ├── src/
 │   ├── components/          # Componentes Vue
-│   │   ├── ResourceList.vue     # Lista de recursos com filtros
-│   │   ├── ResourceForm.vue     # Formulário de recursos
-│   │   ├── SubResourceList.vue  # Lista de comentários
-│   │   ├── SubResourceForm.vue  # Formulário de comentários
-│   │   └── Notification.vue     # Sistema de notificações
-│   ├── services/           # Serviços de API
-│   │   ├── api.js              # Configuração do Axios
-│   │   ├── resourceService.js  # CRUD de recursos
-│   │   └── subResourceService.js # CRUD de sub-recursos
-│   ├── App.vue            # Componente principal
-│   └── main.js            # Entrada da aplicação
-├── backend/
-│   └── db.json            # Banco de dados simulado
-├── .env                   # Variáveis de ambiente
-└── package.json           # Dependências do projeto
+│   │   ├── MensagemCard.vue      # Card de mensagem
+│   │   ├── MensagemForm.vue      # Formulário de mensagem
+│   │   ├── ComentarioCard.vue    # Card de comentário
+│   │   ├── ComentarioForm.vue    # Formulário de comentário
+│   │   ├── SubResourceList.vue   # Lista de comentários
+│   │   ├── SubResourceForm.vue   # Formulário de comentários
+│   │   └── Notification.vue      # Sistema de notificações
+│   ├── views/               # Views/Páginas
+│   │   ├── LoginView.vue         # Página de login
+│   │   ├── MensagensView.vue     # Lista de mensagens
+│   │   ├── NovaMensagemView.vue   # Criar mensagem
+│   │   ├── EditarMensagemView.vue # Editar mensagem
+│   │   ├── AdminDashboard.vue    # Painel administrativo
+│   │   └── NotFoundView.vue       # Página 404
+│   ├── layouts/             # Layouts
+│   │   └── MainLayout.vue        # Layout principal autenticado
+│   ├── services/            # Serviços de API
+│   │   ├── api.js               # Configuração do Axios com interceptors
+│   │   ├── messages.service.js   # CRUD de mensagens
+│   │   └── subResourceService.js # CRUD de comentários
+│   ├── stores/              # Stores Pinia
+│   │   └── auth.js              # Store de autenticação
+│   ├── router/              # Roteamento
+│   │   └── index.js             # Configuração do Vue Router com guards
+│   ├── utils/               # Utilitários
+│   │   └── permissions.js       # Funções de permissão
+│   ├── App.vue              # Componente principal
+│   └── main.js              # Entrada da aplicação
+├── .env                     # Variáveis de ambiente
+├── package.json             # Dependências do projeto
+└── README.md                # Este arquivo
 ```
 
 ## 💡 Exemplos de Uso
 
-### Criar um Recurso
-1. Clique em "Novo Recurso"
-2. Preencha o formulário com título, conteúdo, autor e status
-3. Clique em "Criar"
+### Fazer Login
+1. Acesse a página de login
+2. Digite seu email e senha
+3. Clique em "Entrar"
+4. Você será redirecionado para a lista de mensagens
 
-### Filtrar Recursos
-1. Use o campo de pesquisa para buscar por texto
-2. Selecione um status específico no dropdown
-3. Digite o nome do autor no campo correspondente
-4. Defina um intervalo de datas
+### Criar uma Mensagem
+1. Clique em "Nova Mensagem"
+2. Preencha o formulário com título e conteúdo
+3. Clique em "Criar"
+4. Uma notificação de sucesso aparecerá
+
+### Filtrar Mensagens
+1. Use o campo de pesquisa para buscar por texto (título ou conteúdo)
+2. Digite o nome do autor no campo "Autor"
+3. Selecione uma data inicial e/ou final
+4. Escolha a ordenação desejada
+5. Clique em "Limpar Filtros" para resetar
 
 ### Adicionar Comentário
-1. Clique em um recurso para expandir
+1. Visualize uma mensagem
 2. Clique em "Adicionar Comentário"
-3. Digite seu comentário e nome
+3. Digite seu comentário
 4. Clique em "Criar"
+5. Uma notificação de sucesso aparecerá
 
 ### Notificações
 As notificações aparecem automaticamente no canto superior direito para:
-- Sucesso ao criar/editar/excluir recursos ou comentários
-- Erros nas operações
-- Avisos de validação
+- ✅ Sucesso ao criar/editar/excluir mensagens ou comentários
+- ❌ Erros nas operações
+- ℹ️ Informações importantes
+- ⚠️ Avisos
 
 ## 🔧 Scripts Disponíveis
 
 - `npm run dev` - Iniciar servidor de desenvolvimento
 - `npm run build` - Build para produção
 - `npm run preview` - Visualizar build de produção
+
+## 🔐 Autenticação
+
+O sistema utiliza autenticação JWT com:
+- **Access Token**: Armazenado em memória (state do Pinia)
+- **Refresh Token**: Armazenado em sessionStorage
+- **Interceptors Axios**: Adicionam automaticamente o token em todas as requisições
+- **Refresh Automático**: Renovação automática do token quando expira
+- **Guards de Rota**: Proteção de rotas que requerem autenticação
 
 ## 📄 Licença
 
@@ -164,4 +220,4 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull re
 
 ---
 
-**Nota**: Este projeto foi desenvolvido como parte de um exercício prático de Vue.js com integração a API REST.
+**Nota**: Este projeto foi desenvolvido como parte de um exercício prático de Vue.js com integração a API REST Flask e autenticação JWT.

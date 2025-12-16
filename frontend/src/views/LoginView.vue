@@ -7,7 +7,8 @@
 
       <div class="grupo">
         <label for="email">Email</label>
-        <inputid="email"
+        <input
+          id="email"
           type="email"
           v-model.trim="email"
           required
@@ -17,7 +18,8 @@
 
       <div class="grupo">
         <label for="senha">Senha</label>
-        <inputid="senha"
+        <input
+          id="senha"
           type="password"
           v-model.trim="senha"
           required
@@ -32,6 +34,9 @@
         <span v-else>Carregando...</span>
       </button>
 
+      <div class="register-link">
+        <p>Não tem uma conta? <RouterLink to="/register">Criar conta</RouterLink></p>
+      </div>
     </form>
   </div>
 </template>
@@ -58,6 +63,11 @@ async function entrar() {
     // 1. autenticar usuário
     await auth.login(email.value, senha.value)
 
+    // Mensagem UX: Sucesso no login
+    if (window.$notify) {
+      window.$notify.success(`Bem-vindo, ${auth.user?.nome || 'Usuário'}!`)
+    }
+
     // 2. Se guardou uma rota original (página que o usuário tentou acessar)
     //    use-a. Caso contrário, vá para /mensagens.
     const destino = route.query.redirect || '/mensagens'
@@ -65,6 +75,10 @@ async function entrar() {
 
   } catch (e) {
     erro.value = e?.response?.data?.error || 'Credenciais inválidas.'
+    // Mensagem UX: Erro no login
+    if (window.$notify) {
+      window.$notify.error('Erro ao fazer login. Verifique suas credenciais.')
+    }
   } finally {
     carregando.value = false
   }
@@ -133,5 +147,27 @@ input:focus {
 .erro {
   color: #b91c1c;
   font-size: 0.9rem;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.register-link p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.register-link a {
+  color: #42b883;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
 }
 </style>

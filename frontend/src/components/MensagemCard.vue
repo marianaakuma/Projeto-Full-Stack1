@@ -14,9 +14,14 @@
       <small>🕒 <slot name="data"></slot></small>
     </div>
 
-    <div class="acoes">
-      <button class="editar" @click="$emit('editar')">✏️ Editar</button>
-      <button class="remover" @click="$emit('remover')">🗑️ Excluir</button>
+    <div class="acoes" v-if="canEdit || canDelete">
+      <button v-if="canEdit" class="editar" @click="onEditar">✏️ Editar</button>
+      <button v-if="canDelete" class="remover" @click="onRemover">🗑️ Excluir</button>
+    </div>
+
+    <!-- Seção de Comentários -->
+    <div class="comentarios-section">
+      <SubResourceList :resource-id="id" />
     </div>
   </div>
 </template>
@@ -74,12 +79,19 @@ button.remover {
 button:hover {
   opacity: 0.9;
 }
+
+.comentarios-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
 </style>
 
 <script setup>
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { canEditMessage, canDeleteMessage } from '@/utils/permissions'
+import SubResourceList from './SubResourceList.vue'
 
 const props = defineProps({
   id: { type: [String, Number], required: true },
@@ -90,8 +102,29 @@ const emit = defineEmits(['editar', 'remover'])
 
 const auth = useAuthStore()
 
-function onEditar() { emit('editar', props.id) }
-function onRemover() { emit('remover', props.id) }
+function onEditar() { 
+  const id = Number(props.id) || Number(props.mensagem?.id)
+  if (!id || isNaN(id)) {
+    console.error('ID não encontrado para editar', { id: props.id, mensagem: props.mensagem })
+    if (window.$notify) {
+      window.$notify.error('Erro: ID da mensagem não encontrado.')
+    }
+    return
+  }
+  emit('editar', id) 
+}
+
+function onRemover() { 
+  const id = Number(props.id) || Number(props.mensagem?.id)
+  if (!id || isNaN(id)) {
+    console.error('ID não encontrado para remover', { id: props.id, mensagem: props.mensagem })
+    if (window.$notify) {
+      window.$notify.error('Erro: ID da mensagem não encontrado.')
+    }
+    return
+  }
+  emit('remover', id) 
+}
 
 const canEdit = computed(() => canEditMessage(auth.user, props.mensagem))
 const canDelete = computed(() => canDeleteMessage(auth.user, props.mensagem))
@@ -99,7 +132,7 @@ const canDelete = computed(() => canDeleteMessage(auth.user, props.mensagem))
 const displayAutor = computed(() => {
   const m = props.mensagem
   if (!m) return '—'
-  return m.autor?.nome ?? m.usuario_nome ?? m.autor_nome ?? '—'
+  return m.author || m.autor?.nome || m.usuario_nome || m.autor_nome || '—'
 })
 </script>
 

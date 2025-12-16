@@ -12,7 +12,7 @@
         <template v-if="auth.isAuthenticated">
 
           <span class="usuario">
-            Olá, {{ auth.user?.nome || 'Usuário' }}
+            Olá, {{ auth.user?.username || auth.user?.nome || 'Usuário' }}
           </span>
 
           <RouterLink class="link" to="/mensagens">Mensagens</RouterLink>
